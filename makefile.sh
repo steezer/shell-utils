@@ -224,7 +224,7 @@ getSourcePattern(){
 # 常用变量定义
 makefileForCommon(){
     echo "PROJECT_NAME=${projectName}"
-    echo "TARGET_DIR=release"
+    echo "TARGET_DIR=release/"
     #编译工具
     if [ $buildType == "cpp" ];then
         echo "CC=g++"
@@ -279,15 +279,15 @@ makefileForBin(){
 
     # 目标文件
     echo "TARGET_SOURCE=${targetFiles[0]}"
-    echo "EXE_TARGET=\$(TARGET_DIR)/bin/\$(PROJECT_NAME)\$(EXE_EXT)"
+    echo "EXE_TARGET=\$(TARGET_DIR)bin/\$(PROJECT_NAME)\$(EXE_EXT)"
     echo "TARGET_OBJECT=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .o,\$(basename \$(TARGET_SOURCE))) ))"
     echo "TARGET_SRC_MKS=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .d,\$(basename \$(TARGET_SOURCE))) ))"
     
     #【如果有源文件则编译进目标文件】
     if [ -n "$sourcePatterns" ]; then
         echo "LIB_SOURCES=\$(wildcard $sourcePatterns)"
-        echo "SHARE_TARGET=\$(TARGET_DIR)/lib/lib\$(PROJECT_NAME)\$(DLL_EXT)"
-        echo "STATIC_TARGET=\$(TARGET_DIR)/lib/lib\$(PROJECT_NAME).a"
+        echo "SHARE_TARGET=\$(TARGET_DIR)lib/lib\$(PROJECT_NAME)\$(DLL_EXT)"
+        echo "STATIC_TARGET=\$(TARGET_DIR)lib/lib\$(PROJECT_NAME).a"
         echo "LIB_OBJECTS=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .o,\$(basename \$(LIB_SOURCES))) ))"
         echo "LIB_SRC_MKS=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .d,\$(basename \$(LIB_SOURCES))) ))"
     fi
@@ -335,7 +335,7 @@ makefileForBin(){
     echo ".PHONY: clean install run stop dev test"
     if [ -n "$sourcePatterns" ]; then
         echo "test: \$(TARGET_OBJECT) lib"
-        echo -e "\t@\$(CC) \$(CFLAGS) \$(INC_DIR) -o \$(BUILD_DIR)/test \$(LDFLAGS) \$< -Wl,-rpath \$(TARGET_DIR)/lib  -L\$(TARGET_DIR)/lib -l\$(PROJECT_NAME) && echo ./\$(BUILD_DIR)/test"
+        echo -e "\t@\$(CC) \$(CFLAGS) \$(INC_DIR) -o \$(BUILD_DIR)/test \$(LDFLAGS) \$< -Wl,-rpath \$(TARGET_DIR)lib  -L\$(TARGET_DIR)lib -l\$(PROJECT_NAME) && echo ./\$(BUILD_DIR)/test"
 
     fi
     echo "run:./\$(EXE_TARGET)"
@@ -345,7 +345,7 @@ makefileForBin(){
     echo "dev:"
     echo -e "\t@watchman-make -p '**/*.${buildType}' '**/*.h' '**/*.hpp' 'Makefile' --run \"make stop && make run\""
     echo "clean:"
-    echo -e "\trm -rf \$(TARGET_DIR) \$(BUILD_DIR)"
+    echo -e "\trm -rf \$(TARGET_DIR)lib \$(TARGET_DIR)bin \$(BUILD_DIR)"
 
     # 安装
     echo "install:all"
@@ -362,7 +362,7 @@ makefileForBin(){
         echo -e "\t@if [ -d \"include\" ]; then \\"
         echo -e "\t\tcp include/*.h* \$(INSTALL_DIR)/include/;\\"
         echo -e "\tfi"
-        echo -e "\tcp \$(TARGET_DIR)/lib/lib\$(PROJECT_NAME).* \$(INSTALL_DIR)/lib/"
+        echo -e "\tcp \$(TARGET_DIR)lib/lib\$(PROJECT_NAME).* \$(INSTALL_DIR)/lib/"
     fi
     # 可自动检查目标文件是否存在，如果存在则不建立软链接
     echo -e "\tcp \$(EXE_TARGET) \$(INSTALL_DIR)/bin/"
@@ -382,8 +382,8 @@ makefileForLib(){
 
     # 库文件对象
     echo "LIB_SOURCES=\$(wildcard $sourcePatterns)"
-    echo "SHARE_TARGET=\$(TARGET_DIR)/lib/lib\$(PROJECT_NAME)\$(DLL_EXT)"
-    echo "STATIC_TARGET=\$(TARGET_DIR)/lib/lib\$(PROJECT_NAME).a"
+    echo "SHARE_TARGET=\$(TARGET_DIR)lib/lib\$(PROJECT_NAME)\$(DLL_EXT)"
+    echo "STATIC_TARGET=\$(TARGET_DIR)lib/lib\$(PROJECT_NAME).a"
     echo "LIB_OBJECTS=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .o,\$(basename \$(LIB_SOURCES))) ))"
     echo "LIB_SRC_MKS=\$(addprefix \$(BUILD_DIR)/,\$(strip \$(addsuffix .d,\$(basename \$(LIB_SOURCES))) ))"
 
@@ -413,7 +413,7 @@ makefileForLib(){
     echo "dev:"
     echo -e "\t@watchman-make -p '**/*.${buildType}' '**/*.h' '**/*.hpp' 'Makefile' --run \"make\""
     echo "clean:"
-    echo -e "\trm -rf \$(TARGET_DIR) \$(BUILD_DIR)"
+    echo -e "\trm -rf \$(TARGET_DIR)lib \$(TARGET_DIR)bin \$(BUILD_DIR)"
     echo "install:all"
     echo -e "\t@if [ ! -d \"\$(INSTALL_DIR)\" ]; then \\"
     echo -e "\t\tmkdir -p \"\$(INSTALL_DIR)/lib\"; \\"
@@ -422,7 +422,7 @@ makefileForLib(){
     echo -e "\t@if [ -d \"include\" ]; then \\"
     echo -e "\t\tcp include/*.h* \$(INSTALL_DIR)/include/;\\"
     echo -e "\tfi"
-    echo -e "\tcp \$(TARGET_DIR)/lib/lib\$(PROJECT_NAME).* \$(INSTALL_DIR)/lib/"
+    echo -e "\tcp \$(TARGET_DIR)lib/lib\$(PROJECT_NAME).* \$(INSTALL_DIR)/lib/"
     echo -e "\tln -sf \$(INSTALL_DIR)/include \$(PREFIX)/include/\$(PROJECT_NAME)"
     echo -e "\tln -sf \$(INSTALL_DIR)/lib/lib\$(PROJECT_NAME)\$(DLL_EXT) \$(PREFIX)/lib/lib\$(PROJECT_NAME)\$(DLL_EXT)"
     echo -e "\tln -sf \$(INSTALL_DIR)/lib/lib\$(PROJECT_NAME).a \$(PREFIX)/lib/lib\$(PROJECT_NAME).a"
